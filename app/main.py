@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
-from app.database import engine
+from app.database import engine, Base
+from app.models.user import User
 
 app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
 
 templates = Jinja2Templates(directory="templates")
 

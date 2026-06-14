@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base
 from pydantic_settings import BaseSettings
 
 
@@ -13,9 +14,4 @@ settings = Settings()
 
 engine = create_engine(settings.DATABASE_URL)
 
-try:
-    with engine.connect() as conn:
-        print("Database connected successfully")
-except Exception as e:
-    print("Database connection failed")
-    print(e)
+Base = declarative_base()
