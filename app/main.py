@@ -1,11 +1,18 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.database import engine, Base
 from app.models.user import User
 
+from app.dependencies import (
+    get_current_user,
+    get_dashboard_user,
+    get_optional_user,
+)
+
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from app.security import create_access_token
+from app.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 
 from app.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
@@ -28,31 +35,62 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
-def landing_page(request: Request):
+def landing_page(
+    request: Request,
+    current_user=Depends(get_optional_user),
+):
+    if current_user:
+        return RedirectResponse(
+            url="/dashboard",
+            status_code=303,
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="landing.html"
     )
 
 @app.get("/login")
-def login_page(request: Request):
+def login_page(
+    request: Request,
+    current_user=Depends(get_optional_user),
+):
+    if current_user:
+        return RedirectResponse(
+            url="/dashboard",
+            status_code=303,
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="login.html"
     )
 
 @app.get("/signup")
-def signup_page(request: Request):
+def signup_page(
+    request: Request,
+    current_user=Depends(get_optional_user),
+):
+    if current_user:
+        return RedirectResponse(
+            url="/dashboard",
+            status_code=303,
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="signup.html"
     )
 
 @app.get("/dashboard")
-def dashboard_page(request: Request):
+def dashboard_page(
+    request: Request,
+    current_user=Depends(get_dashboard_user),
+):
     return templates.TemplateResponse(
         request=request,
-        name="dashboard.html"
+        name="dashboard.html",
+        context={"current_user": current_user},
     )
 
 @app.post("/signup", response_model=UserResponse)
@@ -79,6 +117,7 @@ def signup(
 @app.post("/login")
 def login(
     credentials: LoginRequest,
+    response: Response,
     db: Session = Depends(get_db)
 ):
     user = authenticate_user(
@@ -100,7 +139,35 @@ def login(
         }
     )
 
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        samesite="lax",
+    )
+
     return {
         "access_token": token,
         "token_type": "bearer"
     }
+
+
+@app.post("/logout")
+def logout():
+    response = RedirectResponse(
+        url="/login",
+        status_code=303,
+    )
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="lax",
+    )
+    return response
+
+
+
+@app.get("/me")
+def me(current_user = Depends(get_current_user)):
+    return current_user

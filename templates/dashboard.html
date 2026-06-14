@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Spendly</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+      background: #0d0e11;
+      color: #e8eaf0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+    }
+
+    main {
+      width: min(90%, 680px);
+      padding: 2rem;
+      border: 1px solid #2a2e38;
+      border-radius: 1rem;
+      background: #13151a;
+    }
+
+    p {
+      color: #a6abba;
+    }
+
+    button {
+      padding: 0.7rem 1.1rem;
+      border: 0;
+      border-radius: 999px;
+      background: #6c8eff;
+      color: #0d0e11;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Dashboard</h1>
+    <p>Signed in as {{ current_user.email }}</p>
+
+    <form action="/logout" method="post">
+      <button type="submit">Log out</button>
+    </form>
+  </main>
+</body>
+</html>

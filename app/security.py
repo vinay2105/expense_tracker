@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic_settings import BaseSettings
+from jose import jwt, JWTError
 
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -28,6 +29,20 @@ pwd_context = CryptContext(
 )
 
 
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        return payload
+
+    except JWTError:
+        return None
+
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -45,7 +60,7 @@ def verify_password(
 def create_access_token(data: dict):
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
