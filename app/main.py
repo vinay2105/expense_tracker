@@ -5,6 +5,7 @@ from app.models.user import User
 
 from sqlalchemy.orm import Session
 from fastapi import Depends
+from app.security import create_access_token
 
 from app.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
@@ -91,9 +92,15 @@ def login(
             status_code=401,
             detail="Invalid email or password"
         )
+    
+    token = create_access_token(
+        {
+            "sub" : str(user.id),
+            "email": user.email
+        }
+    )
 
     return {
-        "message": "Login successful",
-        "user_id": user.id,
-        "username": user.username
+        "access_token": token,
+        "token_type": "bearer"
     }
