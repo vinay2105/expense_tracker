@@ -9,6 +9,8 @@ from fastapi import Depends
 from app.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
 from app.crud.user import create_user
+from app.schemas.auth import LoginRequest
+from app.crud.user import authenticate_user
 from fastapi import HTTPException
 from app.crud.user import (
     create_user,
@@ -71,3 +73,27 @@ def signup(
         )
 
     return create_user(db, user)
+
+
+@app.post("/login")
+def login(
+    credentials: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    user = authenticate_user(
+        db,
+        credentials.email,
+        credentials.password
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    return {
+        "message": "Login successful",
+        "user_id": user.id,
+        "username": user.username
+    }

@@ -31,3 +31,14 @@ def get_user_by_username(db: Session, username: str):
         .filter(User.username == username)
         .first()
     )
+
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+
+    if not user:
+        return None
+
+    if user.password_hash != password:
+        return None
+
+    return user
