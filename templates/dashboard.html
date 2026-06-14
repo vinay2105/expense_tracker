@@ -4,53 +4,676 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Spendly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
     :root {
-      color-scheme: dark;
-      font-family: Inter, system-ui, sans-serif;
-      background: #0d0e11;
-      color: #e8eaf0;
+      --bg: #0d0e11;
+      --surface: #13151a;
+      --surface-2: #191c22;
+      --border: #2a2e38;
+      --text: #e8eaf0;
+      --muted: #8b90a0;
+      --primary: #6c8eff;
+      --primary-soft: rgba(108, 142, 255, 0.13);
+      --accent: #38d9a9;
+      --danger: #ff6b6b;
+      --radius: 16px;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      min-height: 100vh;
       margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(108, 142, 255, 0.12), transparent 28rem),
+        radial-gradient(circle at 95% 90%, rgba(56, 217, 169, 0.08), transparent 25rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select { font: inherit; }
+
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(42, 46, 56, 0.8);
+      background: rgba(13, 14, 17, 0.78);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav__inner {
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .brand__mark {
       display: grid;
+      width: 32px;
+      height: 32px;
       place-items: center;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #0d0e11;
     }
 
-    main {
-      width: min(90%, 680px);
-      padding: 2rem;
-      border: 1px solid #2a2e38;
-      border-radius: 1rem;
-      background: #13151a;
+    .nav__actions { display: flex; align-items: center; gap: 12px; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
-    p {
-      color: #a6abba;
+    .avatar {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid rgba(108, 142, 255, 0.35);
+      border-radius: 50%;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
-    button {
-      padding: 0.7rem 1.1rem;
+    .logout {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    main { padding: 46px 0 90px; }
+
+    .hero {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(38px, 6vw, 60px);
+      font-weight: 400;
+      letter-spacing: -0.035em;
+      line-height: 1;
+    }
+
+    h1 em { color: var(--primary); font-weight: 400; }
+    .hero__copy { margin: 13px 0 0; color: var(--muted); }
+
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       border: 0;
       border-radius: 999px;
-      background: #6c8eff;
+      padding: 12px 18px;
+      background: var(--primary);
       color: #0d0e11;
-      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 8px 25px rgba(108, 142, 255, 0.2);
+      transition: 160ms ease;
+    }
+
+    .primary-btn:hover { background: #8aa4ff; transform: translateY(-1px); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(19, 21, 26, 0.88);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat { padding: 20px; overflow: hidden; }
+
+    .stat__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .stat__icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .stat__value {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 29px);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+    }
+
+    .stat__note { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(310px, 0.6fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel { padding: 24px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    h2 { margin: 0; font-size: 17px; letter-spacing: -0.02em; }
+    .section-sub { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+
+    .expense-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field--full { grid-column: 1 / -1; }
+
+    label { color: var(--muted); font-size: 12px; font-weight: 600; }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      padding: 11px 12px;
+      background: var(--surface-2);
+      color: var(--text);
+      transition: 160ms ease;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(108, 142, 255, 0.65);
+      box-shadow: 0 0 0 3px rgba(108, 142, 255, 0.1);
+    }
+
+    input[type="date"] { color-scheme: dark; }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 3px;
+    }
+
+    .form-message { color: var(--muted); font-size: 12px; }
+    .form-message.error { color: var(--danger); }
+
+    .breakdown { display: flex; flex-direction: column; gap: 18px; }
+
+    .category-row__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .category-row__amount { color: var(--muted); }
+
+    .bar { height: 7px; overflow: hidden; border-radius: 99px; background: var(--surface-2); }
+    .bar__fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .empty {
+      padding: 26px 10px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .recent { margin-top: 22px; padding: 0; overflow: hidden; }
+    .recent .section-head { padding: 24px 24px 4px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+
+    th {
+      padding: 13px 24px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(42, 46, 56, 0.7);
+      font-size: 13px;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: rgba(108, 142, 255, 0.025); }
+
+    .description { font-weight: 600; }
+    .date, .payment { color: var(--muted); }
+
+    .category-pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: var(--primary-soft);
+      color: #a9bbff;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .amount { color: var(--accent); font-weight: 700; }
+
+    .delete-btn {
+      border: 0;
+      background: none;
+      color: #676d7d;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .delete-btn:hover { color: var(--danger); }
+
+    .chatbot {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 25;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid rgba(108, 142, 255, 0.45);
+      border-radius: 999px;
+      padding: 13px 18px;
+      background: #1b2030;
+      color: var(--text);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
       font-weight: 600;
       cursor: pointer;
+    }
+
+    .chatbot:hover { border-color: var(--primary); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      z-index: 40;
+      transform: translate(-50%, 20px);
+      padding: 11px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #20232b;
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transition: 180ms ease;
+      font-size: 13px;
+    }
+
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 920px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .nav__inner { min-height: 62px; }
+      .user-chip span { display: none; }
+      main { padding-top: 30px; }
+      .hero { align-items: stretch; flex-direction: column; }
+      .hero .primary-btn { align-self: flex-start; }
+      .stats { grid-template-columns: 1fr; }
+      .expense-form { grid-template-columns: 1fr; }
+      .field--full, .form-actions { grid-column: auto; }
+      .panel { padding: 19px; }
+      .chatbot { right: 12px; bottom: 12px; font-size: 12px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Dashboard</h1>
-    <p>Signed in as {{ current_user.email }}</p>
+  <header class="nav">
+    <div class="shell nav__inner">
+      <a class="brand" href="/dashboard">
+        <span class="brand__mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6"/></svg>
+        </span>
+        Spendly
+      </a>
+      <div class="nav__actions">
+        <div class="user-chip">
+          <span>{{ current_user.email }}</span>
+          <div class="avatar">{{ current_user.username[0] }}</div>
+        </div>
+        <form action="/logout" method="post">
+          <button class="logout" type="submit">Log out</button>
+        </form>
+      </div>
+    </div>
+  </header>
 
-    <form action="/logout" method="post">
-      <button type="submit">Log out</button>
-    </form>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">{{ statistics.month_name }} overview</p>
+        <h1>Hello, <em>{{ current_user.username }}</em></h1>
+        <p class="hero__copy">Here is where your money has been going.</p>
+      </div>
+      <a class="primary-btn" href="#add-expense">
+        <span aria-hidden="true">+</span> Add expense
+      </a>
+    </section>
+
+    <section class="stats" aria-label="Expense summary">
+      <article class="card stat">
+        <div class="stat__head"><span>Spent this month</span><span class="stat__icon">&#8377;</span></div>
+        <p class="stat__value">&#8377;{{ "{:,.2f}".format(statistics.month_total) }}</p>
+        <p class="stat__note">{{ statistics.month_count }} transaction{{ "" if statistics.month_count == 1 else "s" }} in {{ statistics.month_name }}</p>
+      </article>
+      <article class="card stat">
+        <div class="stat__head"><span>All-time expenses</span><span class="stat__icon">&Sigma;</span></div>
+        <p class="stat__value">&#8377;{{ "{:,.2f}".format(statistics.total_expenses) }}</p>
+        <p class="stat__note">{{ statistics.transaction_count }} total transaction{{ "" if statistics.transaction_count == 1 else "s" }}</p>
+      </article>
+      <article class="card stat">
+        <div class="stat__head"><span>Daily average</span><span class="stat__icon">~</span></div>
+        <p class="stat__value">&#8377;{{ "{:,.2f}".format(statistics.daily_average) }}</p>
+        <p class="stat__note">Average per day this month</p>
+      </article>
+      <article class="card stat">
+        <div class="stat__head"><span>Hot category</span><span class="stat__icon">#</span></div>
+        <p class="stat__value">{{ statistics.top_category.name if statistics.top_category else "No data" }}</p>
+        <p class="stat__note">
+          {% if statistics.top_category %}
+            &#8377;{{ "{:,.2f}".format(statistics.top_category.total) }} this month
+          {% else %}
+            Add your first expense below
+          {% endif %}
+        </p>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <article class="card panel" id="add-expense">
+        <div class="section-head">
+          <div>
+            <h2>Add a new expense</h2>
+            <p class="section-sub">Keep your spending record up to date.</p>
+          </div>
+        </div>
+        <form class="expense-form" id="expense-form">
+          <div class="field">
+            <label for="amount">Amount (INR)</label>
+            <input id="amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+          </div>
+          <div class="field">
+            <label for="expense-date">Date</label>
+            <input id="expense-date" name="expense_date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+              <option value="">Select category</option>
+              <option>Food & Dining</option>
+              <option>Transport</option>
+              <option>Shopping</option>
+              <option>Bills & Utilities</option>
+              <option>Entertainment</option>
+              <option>Health</option>
+              <option>Education</option>
+              <option>Travel</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="payment-method">Payment method</label>
+            <select id="payment-method" name="payment_method" required>
+              <option>UPI</option>
+              <option>Debit card</option>
+              <option>Credit card</option>
+              <option>Cash</option>
+              <option>Bank transfer</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="description">Description</label>
+            <input id="description" name="description" maxlength="255" placeholder="What did you spend on?" required>
+          </div>
+          <div class="form-actions">
+            <button class="primary-btn" id="save-expense" type="submit">Save expense</button>
+            <span class="form-message" id="form-message" role="status"></span>
+          </div>
+        </form>
+      </article>
+
+      <aside class="card panel">
+        <div class="section-head">
+          <div>
+            <h2>Category breakdown</h2>
+            <p class="section-sub">Your spending mix this month.</p>
+          </div>
+        </div>
+        {% if statistics.categories %}
+          <div class="breakdown">
+            {% for category in statistics.categories %}
+              <div class="category-row">
+                <div class="category-row__top">
+                  <span>{{ category.name }}</span>
+                  <span class="category-row__amount">&#8377;{{ "{:,.2f}".format(category.total) }}</span>
+                </div>
+                <div class="bar" title="{{ "{:.1f}".format(category.percentage) }}%">
+                  <div class="bar__fill" style="width: {{ category.percentage }}%"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty">Your category insights will appear after you add expenses.</div>
+        {% endif %}
+      </aside>
+    </section>
+
+    <section class="card recent">
+      <div class="section-head">
+        <div>
+          <h2>Recent expenses</h2>
+          <p class="section-sub">Your latest 10 recorded transactions.</p>
+        </div>
+      </div>
+      {% if recent_expenses %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Payment</th>
+                <th>Amount</th>
+                <th><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for expense in recent_expenses %}
+                <tr>
+                  <td class="description">{{ expense.description }}</td>
+                  <td><span class="category-pill">{{ expense.category }}</span></td>
+                  <td class="date">{{ expense.expense_date.strftime("%d %b %Y") }}</td>
+                  <td class="payment">{{ expense.payment_method }}</td>
+                  <td class="amount">&#8377;{{ "{:,.2f}".format(expense.amount) }}</td>
+                  <td>
+                    <button class="delete-btn" type="button" data-expense-id="{{ expense.id }}" aria-label="Delete {{ expense.description }}">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty">No expenses yet. Add one above to start building your history.</div>
+      {% endif %}
+    </section>
   </main>
+
+  <button class="chatbot" id="chatbot-button" type="button">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4z"/><path d="M8 9h8M8 13h5"/></svg>
+    Ask chatbot about your expenses
+  </button>
+  <div class="toast" id="toast" role="status">Expense chatbot is coming soon.</div>
+
+  <script>
+    (function () {
+      const form = document.getElementById("expense-form");
+      const submitButton = document.getElementById("save-expense");
+      const message = document.getElementById("form-message");
+      const dateInput = document.getElementById("expense-date");
+
+      const now = new Date();
+      const localToday = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 10);
+      dateInput.value = localToday;
+      dateInput.max = localToday;
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        message.textContent = "";
+        message.classList.remove("error");
+        submitButton.disabled = true;
+        submitButton.textContent = "Saving...";
+
+        const payload = {
+          amount: document.getElementById("amount").value,
+          category: document.getElementById("category").value,
+          description: document.getElementById("description").value.trim(),
+          payment_method: document.getElementById("payment-method").value,
+          expense_date: dateInput.value
+        };
+
+        try {
+          const response = await fetch("/expenses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(typeof data.detail === "string" ? data.detail : "Check the expense details and try again.");
+          }
+
+          message.textContent = "Expense saved.";
+          window.setTimeout(function () { window.location.reload(); }, 450);
+        } catch (error) {
+          message.textContent = error.message || "Could not save this expense.";
+          message.classList.add("error");
+          submitButton.disabled = false;
+          submitButton.textContent = "Save expense";
+        }
+      });
+
+      document.querySelectorAll(".delete-btn").forEach(function (button) {
+        button.addEventListener("click", async function () {
+          if (!window.confirm("Delete this expense?")) return;
+
+          const response = await fetch("/expenses/" + button.dataset.expenseId, {
+            method: "DELETE"
+          });
+
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            window.alert("The expense could not be deleted.");
+          }
+        });
+      });
+
+      const chatbotButton = document.getElementById("chatbot-button");
+      const toast = document.getElementById("toast");
+      chatbotButton.addEventListener("click", function () {
+        toast.classList.add("visible");
+        window.setTimeout(function () { toast.classList.remove("visible"); }, 2200);
+      });
+    })();
+  </script>
 </body>
 </html>
