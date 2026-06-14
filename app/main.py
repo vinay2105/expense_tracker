@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+from app.database import engine
 
 app = FastAPI()
 
@@ -11,4 +12,25 @@ def landing_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="landing.html"
+    )
+
+@app.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html"
+    )
+
+@app.get("/signup")
+def signup_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="signup.html"
+    )
+
+@app.get("/dashboard")
+def dashboard_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html"
     )
