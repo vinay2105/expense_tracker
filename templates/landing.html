@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spendly — Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --color-bg:       #0d0e11;
+  --color-surface:  #13151a;
+  --color-border:   #2a2e38;
+  --color-text:     #e8eaf0;
+  --color-muted:    #8b90a0;
+  --color-faint:    #4a4f5e;
+  --color-primary:  #6c8eff;
+  --color-primary-hover: #8aa4ff;
+  --color-primary-glow:  rgba(108,142,255,0.18);
+  --color-accent:   #38d9a9;
+  --radius-full: 9999px;
+  --radius-lg: 0.75rem;
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ---- BACKGROUND ---- */
+.bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.3;
+}
+.bg__orb--1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(108,142,255,0.7), transparent 70%);
+  top: -150px; left: -100px;
+  animation: float 9s ease-in-out infinite;
+}
+.bg__orb--2 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(56,217,169,0.6), transparent 70%);
+  bottom: -80px; right: 5%;
+  animation: float 9s ease-in-out infinite;
+  animation-delay: -4.5s;
+}
+.bg__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(108,142,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,142,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, black 30%, transparent 100%);
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-28px); }
+}
+
+/* ---- NAVBAR ---- */
+nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(13,14,17,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--color-text);
+}
+.logo-text {
+  background: linear-gradient(135deg, #e8eaf0 30%, var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+/* ---- BUTTONS ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-outline {
+  color: var(--color-text);
+  border-color: var(--color-border);
+  background: transparent;
+}
+.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-glow); }
+.btn-primary {
+  background: var(--color-primary);
+  color: #0d0e11;
+  font-weight: 600;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px var(--color-primary-glow);
+}
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 0 32px rgba(108,142,255,0.35);
+  transform: translateY(-1px);
+}
+.btn-lg { padding: 0.85rem 2rem; font-size: 1rem; }
+
+/* ---- HERO ---- */
+main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1.5rem;
+}
+.hero {
+  max-width: 640px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.5; transform:scale(1.5); }
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 1rem + 5vw, 4.2rem);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+h1 em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sub {
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.15rem);
+  color: var(--color-muted);
+  line-height: 1.7;
+  max-width: 48ch;
+  margin-inline: auto;
+  margin-bottom: 2.5rem;
+}
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ---- FOOTER ---- */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--color-faint);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 480px) {
+  nav { padding: 1rem 1.25rem; }
+  .cta { flex-direction: column; width: 100%; }
+  .cta .btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg" aria-hidden="true">
+  <div class="bg__grid"></div>
+  <div class="bg__orb bg__orb--1"></div>
+  <div class="bg__orb bg__orb--2"></div>
+</div>
+
+<!-- Navbar -->
+<nav aria-label="Main navigation">
+  <a href="/" class="logo" aria-label="Spendly home">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="url(#g1)"/>
+      <path d="M16 7c0 0-6 3.5-6 9.5 0 3 2.5 5.5 5.5 5.5h1c3 0 5.5-2.5 5.5-5.5C22 10.5 16 7 16 7z" fill="white" opacity="0.9"/>
+      <path d="M16 12c0 0-3.5 2.2-3.5 4.8 0 1.8 1.6 3.2 3.4 3.2h.2c1.8 0 3.4-1.4 3.4-3.2C19.5 14.2 16 12 16 12z" fill="url(#g2)"/>
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#6c8eff"/><stop offset="1" stop-color="#38d9a9"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="12" y1="12" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#6c8eff"/><stop offset="1" stop-color="#38d9a9"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="logo-text">Spendly</span>
+  </a>
+  <div class="nav-actions">
+    <a href="/login" class="btn btn-outline">Login</a>
+    <a href="/signup" class="btn btn-primary">Sign Up</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<main>
+  <div class="hero">
+    <div class="badge">
+      <span class="badge-dot" aria-hidden="true"></span>
+      Expense Tracker
+    </div>
+    <h1>Track every <em>rupee</em>,<br>every day</h1>
+    <p class="sub">
+      A simple, clean expense tracker to log your spending, stay on budget, and understand where your money goes — no clutter, just clarity.
+    </p>
+    <div class="cta">
+      <a href="/signup" class="btn btn-primary btn-lg">Get started free</a>
+      <a href="/login" class="btn btn-outline btn-lg">Login</a>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <p>&copy; 2026 Spendly &mdash; Built by Vinay Kumar</p>
+</footer>
+
+</body>
+</html>
