@@ -9,6 +9,7 @@ load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 memory = InMemorySaver()
+MCP_URL = os.getenv("MCP_URL")
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
@@ -59,6 +60,8 @@ Rules:
 8. Do not answer general knowledge, coding, mathematics, entertainment, history, sports, or personal questions.
 
 9. do not add dummy expenses 
+
+10. expenses are in INR rupees not in dollar 
 Your purpose is expense management only.
 """
 
@@ -72,7 +75,7 @@ async def build_agent(access_token: str):
         {
             "expense_tracker": {
                 "transport": "streamable_http",
-                "url": "http://localhost:8000/mcp",
+                "url": MCP_URL,
                 "headers": {
                     "Authorization": f"Bearer {access_token}"
                 },
