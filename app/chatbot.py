@@ -12,7 +12,7 @@ memory = InMemorySaver()
 MCP_URL = os.getenv("MCP_URL")
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="llama-3.1-8b-instant",
     api_key=GROQ_API_KEY,
     temperature=0,
 )
@@ -63,6 +63,8 @@ Rules:
 
 10. expenses are in INR rupees not in dollar 
 Your purpose is expense management only.
+
+whenever the user ask for deleting an expense or searching an expense you have to get list of all the expense and then look for what the user is asking 
 """
 
 
