@@ -2,6 +2,9 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from app.chatbot import chat
+from app.schemas.chat import ChatRequest, ChatResponse
+from fastapi import Cookie
 
 from app.crud.expense import (
     create_expense,
@@ -216,3 +219,23 @@ def logout():
 @app.get("/me")
 def me(current_user = Depends(get_current_user)):
     return current_user
+
+
+@app.post(
+"/chat",
+response_model=ChatResponse,
+)
+async def chatbot_endpoint(
+payload: ChatRequest,
+current_user=Depends(get_current_user),
+access_token: str | None = Cookie(None),
+):
+    reply = await chat(
+    message=payload.message,
+    thread_id=current_user["sub"],
+    access_token=access_token,
+    )
+
+    return ChatResponse(
+        response=reply
+    )

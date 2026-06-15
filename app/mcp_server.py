@@ -139,14 +139,19 @@ def get_my_category_breakdown(
     ),
 )
 def add_my_expense(
-    amount: Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=2)],
+    amount: Annotated[float, Field(gt=0)],
     category: Annotated[str, Field(min_length=1, max_length=50)],
     description: Annotated[str, Field(min_length=1, max_length=255)],
     payment_method: Annotated[str, Field(min_length=1, max_length=50)] = "Other",
-    expense_date: date = Field(default_factory=date.today),
+    expense_date: date | None = None,
     subject: str = TokenClaim("sub"),
 ) -> dict:
+
+    if expense_date is None:
+        expense_date = date.today()
+
     user_id = trusted_user_id(subject)
+
     expense = ExpenseCreate(
         amount=amount,
         category=category,
@@ -154,8 +159,15 @@ def add_my_expense(
         payment_method=payment_method,
         expense_date=expense_date,
     )
+
     with SessionLocal() as db:
-        return expense_data(create_expense(db, user_id, expense))
+        return expense_data(
+            create_expense(
+                db,
+                user_id,
+                expense
+            )
+        )
 
 
 @mcp.tool(
